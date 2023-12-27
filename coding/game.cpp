@@ -21,7 +21,7 @@ void Game::initVariables()
     //Game Logic initialization
     this->points = 0;
     this->enemySpawnTimer = 0.f;
-    this->enemySpawnTimerMax = 500.f;
+    this->enemySpawnTimerMax = 10.f;
     this->maxEnemies = 5;
 
 }
@@ -40,8 +40,8 @@ void Game::initEnemies()
     this->enemy.setPosition(sf::Vector2f(10.f, 10.f));
     this->enemy.setSize(sf::Vector2f(50.f, 50.f));
     this->enemy.setFillColor(sf::Color::Cyan);
-    this->enemy.setOutlineColor(sf::Color::Green);
-    this->enemy.setOutlineThickness(1.f);
+    //this->enemy.setOutlineColor(sf::Color::Green);
+    //this->enemy.setOutlineThickness(1.f);
 
 }
 
@@ -97,6 +97,7 @@ void Game::updateMousePositions()
 {
     //Updates the mouse positions relative to window (Vector2i)
     this->mousePosWindow = sf::Mouse::getPosition(*this->window);
+    this->mousePosView = this->window->mapPixelToCoords(this->mousePosWindow);
 }
 
 void Game::updateEnemies()
@@ -115,10 +116,38 @@ void Game::updateEnemies()
             this->enemySpawnTimer += 1.f;
     }
 
-    //Move the enemies (5 down for this example)
-    for(auto &e : this->enemies)
+    //Moving and updating the enemies
+    for(int i = 0; i < this->enemies.size(); i++)
     {
-        e.move(0.f, 1.f);
+        bool deleted = false;
+
+        this->enemies[i].move(0.f, 1.f);
+
+        //Check if clicked upon:
+
+        /*
+        Logic breakdown:
+            If button is clicked, check if the left mouse is pressed
+            If so, it checks if any of the enemies are within where the mouse is
+            If so, remove the enemy from the array of enemies
+        */
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            if(this->enemies[i].getGlobalBounds().contains(this->mousePosView))
+                deleted = true;
+
+            //Point system
+            this->points += 10.f;
+        }
+
+        //Check if the enemy is off screen and delete (Remeber top left is 0,0)
+        if(this->enemies[i].getPosition().y > this->window->getSize().y)
+            deleted = true;
+
+        //Deleting this way with a bool may add more code but ensures that
+        //the enemies are only deleted once
+        if(deleted == true)
+            this->enemies.erase(this->enemies.begin() + i);
     }
 }
 

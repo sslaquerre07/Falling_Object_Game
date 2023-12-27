@@ -40,6 +40,7 @@ class Game{
 
         //Mouse Position
         sf::Vector2i mousePosWindow;
+        sf::Vector2f mousePosView;
 
         //Game Logic (Requires initialization)
         int points;
