@@ -20,9 +20,12 @@ void Game::initVariables()
 
     //Game Logic initialization
     this->points = 0;
+    this->health = 10;
     this->enemySpawnTimer = 0.f;
     this->enemySpawnTimerMax = 10.f;
     this->maxEnemies = 5;
+    this->mouseHeld = false;
+    this->endGame = false;
 
 }
 
@@ -103,7 +106,6 @@ void Game::updateMousePositions()
 void Game::updateEnemies()
 {
     //Also responsible for moving enemies downwards
-    //Removes enemies from the screen (TODO)
     //Updating the timer for enemy spawning
     if(this->enemies.size() < this->maxEnemies){
         if(this->enemySpawnTimer >= this->enemySpawnTimerMax)
@@ -123,31 +125,48 @@ void Game::updateEnemies()
 
         this->enemies[i].move(0.f, 1.f);
 
-        //Check if clicked upon:
-
-        /*
-        Logic breakdown:
-            If button is clicked, check if the left mouse is pressed
-            If so, it checks if any of the enemies are within where the mouse is
-            If so, remove the enemy from the array of enemies
-        */
-        if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        {
-            if(this->enemies[i].getGlobalBounds().contains(this->mousePosView))
-                deleted = true;
-
-            //Point system
-            this->points += 10.f;
-        }
-
         //Check if the enemy is off screen and delete (Remeber top left is 0,0)
         if(this->enemies[i].getPosition().y > this->window->getSize().y)
-            deleted = true;
-
-        //Deleting this way with a bool may add more code but ensures that
-        //the enemies are only deleted once
-        if(deleted == true)
+        {
             this->enemies.erase(this->enemies.begin() + i);
+            this->health -= 1;
+            std::cout << "Health: " << this->health << "\n";
+        }
+    }
+    
+    //Check if clicked upon:
+
+    /*
+    Logic breakdown:
+        If button is clicked, check if the left mouse is pressed
+        If so, it checks if any of the enemies are within where the mouse is
+        If so, remove the enemy from the array of enemies
+    */
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        //Checks if the mouse is being held down
+        if(this->mouseHeld == false)
+        {
+            //Done to ensure that the mouse cannot be held down
+            this->mouseHeld == true;
+            bool deleted = false;
+            for(size_t i = 0; i < this->enemies.size() && deleted == false;i++)
+            {
+                if(this->enemies[i].getGlobalBounds().contains(this->mousePosView))
+                {
+                    deleted = true;
+                    this->enemies.erase(this->enemies.begin() + i);
+
+                    //Gain points
+                    this->points += 1;
+                    std::cout << "Points: " << this->points << "\n";
+                }
+            }
+        }
+    }
+    else
+    {
+        this->mouseHeld == false;
     }
 }
 
