@@ -42,7 +42,7 @@ void Game::initWindow()
 
 void Game::initFonts()
 {
-    if(!this->font.loadFromFile("C:/sfml-project/Fonts/arial.ttf"))
+    if(!this->font.loadFromFile("C:/Falling_Object_Game/Fonts/arial.ttf"))
     {
         std::cout << "Failed to load in the font" << "\n";
     };
