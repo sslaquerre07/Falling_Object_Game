@@ -5,6 +5,8 @@ Game::Game()
 {
     this->initVariables();
     this->initWindow();
+    this->initFonts();
+    this->initText();
     this->initEnemies();
 }
 
@@ -36,6 +38,22 @@ void Game::initWindow()
     this->window = new sf::RenderWindow(this->videoMode, "Game 1", sf::Style::Titlebar | sf::Style::Close);
 
     this->window->setFramerateLimit(144);
+}
+
+void Game::initFonts()
+{
+    if(!this->font.loadFromFile("C:/sfml-project/Fonts/arial.ttf"))
+    {
+        std::cout << "Failed to load in the font" << "\n";
+    };
+}
+
+void Game::initText()
+{
+    this->uiText.setFont(this->font);
+    this->uiText.setCharacterSize(24);
+    this->uiText.setFillColor(sf::Color::White);
+    this->uiText.setString("NONE");
 }
 
 void Game::initEnemies()
@@ -103,6 +121,15 @@ void Game::updateMousePositions()
     this->mousePosView = this->window->mapPixelToCoords(this->mousePosWindow);
 }
 
+void Game::updateText()
+{
+    std::stringstream ss;
+
+    ss << "Points:" << this->points << "\n"
+        << "Health" << this->health << "\n";
+    this->uiText.setString(ss.str());
+}
+
 void Game::updateEnemies()
 {
     //Also responsible for moving enemies downwards
@@ -154,6 +181,7 @@ void Game::updateEnemies()
             {
                 if(this->enemies[i].getGlobalBounds().contains(this->mousePosView))
                 {
+                    //Delete the enemy
                     deleted = true;
                     this->enemies.erase(this->enemies.begin() + i);
 
@@ -174,16 +202,26 @@ void Game::update()
 {
     //Remeber to call this to update the ev variable before you can update anything!
     this->pollEvents();
-    this->updateMousePositions();
-    this->updateEnemies();
+    if(this->endGame == false)
+    {
+        this->updateMousePositions();
+        this->updateText();
+        this->updateEnemies();
+    }
+
 }
 
-void Game::renderEnemies()
+void Game::renderText(sf::RenderTarget& target)
+{
+    target.draw(this->uiText);
+}
+
+void Game::renderEnemies(sf::RenderTarget& target)
 {
     //Rendering all of the enemies
     for(auto &e : this->enemies)
     {
-        this->window->draw(e);
+        target.draw(e);
     }
 }
 
@@ -197,7 +235,10 @@ void Game::render()
 
     this->window->clear();
     //Draw game objects
-    this->renderEnemies();
+    this->renderEnemies(*this->window);
+
+    //Render the text for the game
+    this->renderText(*this->window);
 
     this->window->display();
 }

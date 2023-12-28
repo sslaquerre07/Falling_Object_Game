@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+#include <sstream>
 
 /*
     Class that acts as the game engine.
@@ -26,10 +27,12 @@ class Game{
         
         void pollEvents();
         void updateMousePositions();
+        void updateText();
         void updateEnemies();
         void update();
 
-        void renderEnemies();
+        void renderText(sf::RenderTarget& target);
+        void renderEnemies(sf::RenderTarget& target);
         void render();
     private:
         //Variables 
@@ -41,6 +44,12 @@ class Game{
         //Mouse Position
         sf::Vector2i mousePosWindow;
         sf::Vector2f mousePosView;
+
+        //Resources 
+        sf::Font font;
+
+        //Text
+        sf::Text uiText;
 
         //Game Logic (Requires initialization)
         bool endGame;
@@ -59,6 +68,8 @@ class Game{
         void initVariables();
         void initWindow();
         void initEnemies();
+        void initFonts();
+        void initText();
 
 };
 
